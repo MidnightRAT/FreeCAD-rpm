@@ -16,7 +16,7 @@ Where possible the package uses **system libraries** from Fedora `-devel` packag
 - Coin4 4.0.10, OpenCASCADE, VTK 9.5+
 - Boost 1.90, Eigen3 5.0.1
 - PySide6 6.11, Shiboken6, Pivy 0.6.9+
-- fmt, yaml-cpp, nlohmann_json, Microsoft GSL
+- fmt, yaml-cpp, nlohmann_json, Microsoft GSL (`guidelines-support-library-devel`)
 - OndselSolver, libE57Format, libkdtree++, orocos-kdl
 - MEDFile, Xerces-C, ICU, OpenMPI, HDF5
 - GTest/GMock, libspnav
@@ -51,19 +51,22 @@ sudo dnf install freecad-*.x86_64.rpm
 
 ```bash
 # Install build tools
-sudo dnf install -y rpm-build rpmdevtools git git-lfs wget curl \
-  cmake ninja-build gcc gcc-c++ make patch pkgconf \
+sudo dnf install -y rpm-build rpmdevtools dnf-plugins-core git wget curl \
+  cmake ninja-build gcc gcc-c++ make patch pkgconf dos2unix \
   swig python3-devel desktop-file-utils libappstream-glib \
-  Coin4-devel opencascade-devel vtk-devel \
+  Coin4-devel opencascade-devel med-devel vtk-devel \
   boost-devel eigen3-devel pybind11-devel \
-  python3-pycxx-devel python3-pyside6-devel shiboken6-devel \
+  python3-pycxx-devel python3-pyside6-devel python3-shiboken6-devel \
   python3-pivy python3-matplotlib \
-  fmt-devel yaml-cpp-devel nlohmann-json-devel ms-gsl-devel \
+  fmt-devel yaml-cpp-devel nlohmann-json-devel guidelines-support-library-devel \
   ondselsolver-devel libE57Format-devel libkdtree++-devel orocos-kdl-devel \
   gtest-devel gmock-devel hdf5-static openmpi-devel xerces-c-devel \
   libicu-devel libspnav-devel \
   mesa-libGL-devel mesa-libGLU-devel freetype-devel \
   qt6-qtbase-devel qt6-qtsvg-devel qt6-qttools-devel
+
+# ...or let dnf resolve them straight from the spec:
+# sudo dnf builddep -y freecad.spec
 
 # Determine version and build RPM
 VERSION=1.1.4
@@ -96,8 +99,10 @@ sudo dnf install -y mock
 sudo usermod -a -G mock $USER
 newgrp mock
 
-# Build SRPM first
-rpmbuild -bs --define "_sourcedir $PWD" --define "_srcrpmdir $PWD" freecad.spec
+# Build SRPM first (spec is a template — substitute the version)
+VERSION=1.1.4
+sed -e "s/@VERSION@/${VERSION}/g" -e "s/@RELEASE@/1/g" freecad.spec > /tmp/freecad.spec
+rpmbuild -bs --define "_sourcedir $PWD" --define "_srcrpmdir $PWD" /tmp/freecad.spec
 
 # Build for Fedora 44 with RPMFusion free
 mock -r fedora+rpmfusion_free-44-x86_64 --rebuild freecad-*.src.rpm
@@ -106,7 +111,10 @@ mock -r fedora+rpmfusion_free-44-x86_64 --rebuild freecad-*.src.rpm
 mock -r fedora+rpmfusion_free-45-x86_64 --rebuild freecad-*.src.rpm
 ```
 
-Resulting RPMs in `/var/lib/mock/fedora+rpmfusion_free-44-x86_64/result/` (and 45).
+Resulting RPMs in `/var/lib/mock/fedora-44-x86_64/result/` (and `fedora-45-x86_64/result/`).
+
+> **Note:** unit tests are off by default (`%bcond_with tests` in the spec — a few
+> tests fail under mock chroot). Enable with `rpmbuild --with tests`.
 
 ## CI/CD
 
