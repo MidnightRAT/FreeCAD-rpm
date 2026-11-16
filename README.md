@@ -7,7 +7,7 @@ RPM packaging for [FreeCAD](https://github.com/FreeCAD/FreeCAD) — open-source 
 
 ## Donate
 
-[![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20me%20on%20Ko--fi-ff5e5b?style=for-the-badge&logo=ko-fi)](https://ko-fi.com/redeyesnightrat)
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/redeyesnightrat)
 
 ## Dependency strategy
 
